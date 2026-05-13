@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filtered Self | The Digital Mirror</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="page page-1">
+
+  <div class="tech-bg-container">
+    <div class="aurora"></div>
+    <canvas id="particleCanvas"></canvas>
+  </div>
+
+  <header class="nav">
+    <div class="logo">FILTERED SELF</div>
+    <nav>
+      <a class="active" href="index.html">SCAN</a >
+      <a href="page2.html">FILTER</a >
+      <a href="page3.html">POST</a >
+      <a href="page4.html">OPTIMISE</a >
+      <a href="page5.html">REFLECT</a >
+    </nav>
+  </header>
+
+  <main class="hero">
+
+    <section class="phone-area">
+      <div class="phone">
+        <img src="images/page1-face.png" alt="Half real half filtered face" />
+
+        <div class="scan-line"></div>
+        <div class="face-box"></div>
+
+        <p class="system-text top">FACE DETECTED</p >
+
+        <p class="case-tag">TIKTOK BEAUTY FILTERS</p >
+
+        <p class="system-text bottom">FILTER STATUS: OFF / ON</p >
+
+        <div class="data-tags">
+          <span>FACE AS IMAGE</span>
+          <span>FACE AS DATA</span>
+          <span>FACE AS INTERFACE</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="text-area">
+      <p class="label">01 / DIGITAL MIRROR</p >
+
+      <h1>The Digital Mirror</h1>
+
+      <h2>
+        Photography no longer simply records the face; it prepares it for the screen.
+      </h2>
+      <div class="case-study-tag">
+      CASE STUDY: TIKTOK / INSTAGRAM AI BEAUTY FILTERS
+      </div>
+
+      <p>
+        In digital screen culture, the face is no longer captured as a stable image.
+        Through beauty filters, facial detection and real-time editing, photography
+        becomes an interface where the self can be adjusted, corrected and performed.
+      </p >
+
+      <p>
+        This page introduces the smartphone camera as a digital mirror: a space where
+        looking, scanning and modifying happen at the same time. Rather than reflecting
+        the face neutrally, the screen transforms it into a surface that can be measured
+        and optimised.
+      </p >
+
+      <div class="theory-box">
+        <p class="theory-title">THEORETICAL FRAME</p >
+        <p>
+          Lev Manovich argues that digital images are no longer fixed photographs,
+          but programmable objects that can be modified, layered and recombined.
+          This helps frame the filtered selfie as an image that is not simply taken,
+          but continuously processed.
+        </p >
+        <span>Manovich, 2001</span>
+      </div>
+      <div class="mini-theory-box">
+  <p class="mini-theory-title">REFERENCE NOTE</p >
+
+  <p>
+          Photography shapes how images are seen and judged.
+   </p >
+
+        <span>Sontag, 1977</span>
+</div>
+
+      <a class="button" href="page2.html" id="scanButton">Begin Analysis</a >
+
+<audio id="scanSound" preload="auto">
+  <source src="sounds/page1-scan-sound.mp3" type="audio/mpeg">
+</audio>
+    </section>
+
+  </main>
+
+  <script>
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let particles = [];
+    const mouse = { x: null, y: null, radius: 180 };
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+    });
+
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+
+      const numberOfParticles = (canvas.width * canvas.height) / 9000;
+
+      for (let i = 0; i < numberOfParticles; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
+      }
+
+      draw() {
+        ctx.fillStyle = '#6f8faa';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        if (mouse.x !== null && mouse.y !== null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < mouse.radius && distance > 0) {
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = (mouse.radius - distance) / mouse.radius;
+            this.x -= forceDirectionX * force * 4;
+            this.y -= forceDirectionY * force * 4;
+          }
+        }
+      }
+    }
+
+    function connect() {
+      for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+          let dx = particles[a].x - particles[b].x;
+          let dy = particles[a].y - particles[b].y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 160) {
+            let opacity = 1 - distance / 160;
+            ctx.strokeStyle = `rgba(111, 143, 170, ${opacity * 0.45})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      connect();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', init);
+
+    init();
+animate();
+
+const scanButton = document.getElementById('scanButton');
+const scanSound = document.getElementById('scanSound');
+
+scanButton.addEventListener('click', function(event) {
+  event.preventDefault();
+
+  scanSound.currentTime = 0;
+  scanSound.play();
+
+  scanButton.textContent = 'Scanning...';
+  scanButton.classList.add('scanning');
+
+  setTimeout(() => {
+    window.location.href = 'page2.html';
+  }, 1600);
+});
+  </script>
+
+</body>
+</html>

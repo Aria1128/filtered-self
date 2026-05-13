@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filtered Self | Simulated Face</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="page page-3">
+
+  <div class="tech-bg-container">
+    <div class="aurora"></div>
+    <canvas id="particleCanvas"></canvas>
+  </div>
+
+  <header class="nav">
+    <div class="logo">FILTERED SELF</div>
+    <nav>
+      <a href="index.html">SCAN</a >
+      <a href="page2.html">FILTER</a >
+      <a class="active" href="page3.html">POST</a >
+      <a href="page4.html">OPTIMISE</a >
+      <a href="page5.html">REFLECT</a >
+    </nav>
+  </header>
+
+  <main class="comparison-page">
+
+    <section class="intro-text">
+      <p class="label">03 / SIMULATION</p >
+      <h1>The Simulated Face</h1>
+      <h2>A face that looks real, but is algorithmically constructed.</h2>
+
+      <p>
+        Beauty filters do not simply improve the photograph. They produce a simulated
+        version of the face: smoother, brighter, more symmetrical and more aligned
+        with platform beauty standards.
+      </p >
+
+      <p>
+        The filtered face appears natural, but it is constructed through layers of
+        correction. In this process, photography moves away from recording reality
+        and becomes a system for manufacturing an idealised self-image.
+      </p >
+
+
+      <a class="page3-next-button" href="page4.html">
+  CONTINUE ANALYSIS →
+</a >
+
+
+    </section>
+
+<section class="comparison-grid">
+
+  <div class="face-card">
+    <img src="images/page3-real-face.png" alt="Real face" />
+    <div class="card-caption">
+      <h3>REAL FACE</h3>
+      <p>skin texture / asymmetry / tiredness</p >
+      <small>RAW / UNEDITED / RECORDED DETAILS VISIBLE</small>
+    </div>
+  </div>
+
+  <button class="arrow transform-arrow" id="revealFiltered">→</button>
+
+  <div class="face-card hidden-card" id="filteredCard">
+    <img src="images/page3-filtered-face.png" alt="Filtered face" />
+    <div class="card-caption">
+      <h3>FILTERED FACE</h3>
+      <p>smooth skin / glow / symmetry</p >
+      <small>FILTER APPLIED / ENHANCEMENTS ACTIVE</small>
+    </div>
+  </div>
+
+  <button class="arrow transform-arrow hidden-arrow" id="revealIdeal">→</button>
+
+  <div class="face-card hidden-card" id="idealCard">
+    <img src="images/page3-ideal-face.png" alt="Ideal digital face" />
+    <div class="card-caption">
+      <h3>IDEAL FACE</h3>
+      <p>fantasy / digital / optimised self</p >
+      <small>ALGORITHM REFINED / OPTIMISED FOR SCREEN</small>
+    </div>
+  </div>
+
+</section>
+    </section>
+
+     <audio id="transformSound" preload="auto">
+     <source src="sounds/page3-transform-sound.mp3" type="audio/mpeg">
+     </audio>
+
+    <section class="bottom-text">
+      <div>
+        <p>
+          The power of beauty filters lies in their realism. The filtered image
+          still appears photographic, but the face has already been reconstructed.
+        </p >
+        <p>
+          Skin texture is softened, facial contours are refined and makeup is
+          intensified. The result is not simply a better photograph, but a simulated
+          version of the self.
+        </p >
+      </div>
+
+      <div class="theory-box page3-theory">
+        <p class="theory-title">THEORETICAL FRAME</p >
+        <p>
+          Jean Baudrillard argues that simulation can produce images that no longer
+          simply represent reality, but replace it with a constructed version of the real.
+          The filtered face works in this way: it looks believable, while gradually
+          displacing the unedited face.
+        </p >
+        <span>Baudrillard, 1994</span>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let particles = [];
+    const mouse = { x: null, y: null, radius: 180 };
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+    });
+
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+
+      const numberOfParticles = (canvas.width * canvas.height) / 9000;
+
+      for (let i = 0; i < numberOfParticles; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
+      }
+
+      draw() {
+        ctx.fillStyle = '#6f8faa';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        if (mouse.x !== null && mouse.y !== null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < mouse.radius && distance > 0) {
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = (mouse.radius - distance) / mouse.radius;
+            this.x -= forceDirectionX * force * 4;
+            this.y -= forceDirectionY * force * 4;
+          }
+        }
+      }
+    }
+
+    function connect() {
+      for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+          let dx = particles[a].x - particles[b].x;
+          let dy = particles[a].y - particles[b].y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 160) {
+            let opacity = 1 - distance / 160;
+            ctx.strokeStyle = `rgba(111, 143, 170, ${opacity * 0.45})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      connect();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', init);
+
+    init();
+    animate();
+    const transformSound = document.getElementById('transformSound');
+
+const revealFiltered = document.getElementById('revealFiltered');
+const revealIdeal = document.getElementById('revealIdeal');
+const filteredCard = document.getElementById('filteredCard');
+const idealCard = document.getElementById('idealCard');
+
+revealFiltered.addEventListener('click', () => {
+  transformSound.currentTime = 0;
+  transformSound.play();
+
+  filteredCard.classList.remove('hidden-card');
+  filteredCard.classList.add('revealed-card');
+
+  revealIdeal.classList.remove('hidden-arrow');
+  revealIdeal.classList.add('revealed-arrow');
+
+  revealFiltered.classList.add('active-transform');
+  setTimeout(() => {
+    revealFiltered.classList.remove('active-transform');
+  }, 900);
+});
+
+revealIdeal.addEventListener('click', () => {
+  transformSound.currentTime = 0;
+  transformSound.play();
+
+  idealCard.classList.remove('hidden-card');
+  idealCard.classList.add('revealed-card');
+
+  revealIdeal.classList.add('active-transform');
+  setTimeout(() => {
+    revealIdeal.classList.remove('active-transform');
+  }, 900);
+});
+  </script>
+
+</body>
+</html>

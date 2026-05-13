@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<div class="tech-bg-container">
+  <div class="aurora"></div>
+  <canvas id="particleCanvas"></canvas>
+</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filtered Self | Unstable Self-image</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="page page-5">
+  <header class="nav">
+    <div class="logo">FILTERED SELF</div>
+    <nav>
+      <a href="index.html">SCAN</a >
+      <a href="page2.html">FILTER</a >
+      <a href="page3.html">POST</a >
+      <a href="page4.html">OPTIMISE</a >
+      <a class="active" href="page5.html">REFLECT</a >
+    </nav>
+  </header>
+
+ <main class="final-page">
+
+  <section class="final-left">
+    <div class="final-image">
+      <img src="images/page5-layered-face.jpg" alt="Layered unstable face" />
+      <p class="system-text top">REAL FACE NOT FOUND</p >
+      <p class="system-text bottom">SELF IMAGE PROCESSING...</p >
+    </div>
+
+    <button class="sound-button page5-sound-button" id="reflectionSoundButton">
+      PLAY REFLECTION SOUND
+    </button>
+
+    <audio id="reflectionSound" preload="auto">
+      <source src="sounds/page5-reflection-glitch.mp3" type="audio/mpeg">
+    </audio>
+  </section>
+
+  <section class="final-text">
+    <p class="label">05 / UNSTABLE SELF-IMAGE</p >
+
+    <h1>The Unstable Self-image</h1>
+
+    <h2>Photography becomes a mirror of the edited self.</h2>
+
+    <p>
+      In digital screen culture, photography no longer simply records appearance.
+      It produces a screen-ready version of the face through visibility, simulation
+      and algorithmic correction.
+    </p >
+
+    <p>
+      The filtered image becomes a digital mirror: attractive, controlled and
+      unstable. As the edited face becomes familiar, the unfiltered face may begin
+      to feel incomplete.
+    </p >
+
+    <div class="theory-box page5-theory">
+      <p class="theory-title">THEORETICAL FRAME</p >
+      <p>
+        Sherry Turkle argues that digital technologies shape how people construct
+        and experience the self. This helps frame the filtered face as a mediated
+        identity rather than a stable reflection.
+      </p >
+      <span>Turkle, 2011</span>
+    </div>
+
+    <h3>
+      When the filtered face becomes familiar,<br />
+      does the real face begin to feel unfinished?
+    </h3>
+  </section>
+
+</main>
+
+<script>
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+
+let particles = [];
+const mouse = { x: null, y: null, radius: 180 }; // 鼠标排斥半径
+
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+function init() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    particles = [];
+    // 增加粒子密度：数值越小，粒子越多。9000是一个平衡点
+    const numberOfParticles = (canvas.width * canvas.height) / 9000; 
+    for (let i = 0; i < numberOfParticles; i++) {
+        particles.push(new Particle());
+    }
+}
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1; // 粒子大小
+        this.vx = (Math.random() - 0.5) * 1.2; // 漂移速度
+        this.vy = (Math.random() - 0.5) * 1.2;
+    }
+
+    draw() {
+        ctx.fillStyle = '#6f8faa'; 
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        // 鼠标排斥逻辑
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < mouse.radius) {
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = (mouse.radius - distance) / mouse.radius;
+            this.x -= forceDirectionX * force * 4;
+            this.y -= forceDirectionY * force * 4;
+        }
+    }
+}
+
+function connect() {
+    for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+            let dx = particles[a].x - particles[b].x;
+            let dy = particles[a].y - particles[b].y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 160) { // 连线距离上限
+                let opacity = 1 - (distance / 160);
+                ctx.strokeStyle = `rgba(111, 143, 170, ${opacity * 0.6})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(particles[a].x, particles[a].y);
+                ctx.lineTo(particles[b].x, particles[b].y);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+    }
+    connect();
+    requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => {
+    init();
+});
+
+init();
+animate();
+const reflectionSoundButton = document.getElementById('reflectionSoundButton');
+const reflectionSound = document.getElementById('reflectionSound');
+
+reflectionSoundButton.addEventListener('click', () => {
+  reflectionSound.currentTime = 0;
+  reflectionSound.play();
+
+  reflectionSoundButton.textContent = 'SELF IMAGE PROCESSING...';
+  reflectionSoundButton.classList.add('playing');
+
+  setTimeout(() => {
+    reflectionSoundButton.textContent = 'PLAY REFLECTION SOUND';
+    reflectionSoundButton.classList.remove('playing');
+  }, 1400);
+});
+
+</script>
+
+</body>
+</html>

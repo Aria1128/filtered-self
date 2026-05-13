@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<div class="tech-bg-container">
+  <div class="aurora"></div>
+  <canvas id="particleCanvas"></canvas>
+</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filtered Self | Performance</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="page page-2">
+  <header class="nav">
+    <div class="logo">FILTERED SELF</div>
+    <nav>
+      <a href="index.html">SCAN</a >
+      <a class="active" href="page2.html">FILTER</a >
+      <a href="page3.html">POST</a >
+      <a href="page4.html">OPTIMISE</a >
+      <a href="page5.html">REFLECT</a >
+    </nav>
+  </header>
+
+  <main class="split-layout">
+
+  <section class="image-panel">
+    <img src="images/page2-platform.png" alt="Filtered selfie on platform interface" />
+
+    <span class="floating-word word-1">VISIBLE</span>
+    <span class="floating-word word-2">LIKEABLE</span>
+    <span class="floating-word word-3">SHAREABLE</span>
+    <span class="floating-word word-4">PERFORMED</span>
+
+    <button class="sound-button page2-sound-button" id="platformSoundButton">
+  PLAY FEEDBACK / NEXT
+</button>
+
+<audio id="platformSound" preload="auto">
+  <source src="sounds/page2-like-notification.mp3" type="audio/mpeg">
+</audio>
+
+  </section>
+
+  <section class="text-area page2-text">
+    <p class="label">02 / PLATFORM PERFORMANCE</p >
+
+    <h1>From Photograph to Performance</h1>
+
+    <h2>The filtered selfie becomes a spectacle designed for visibility.</h2>
+
+    <p>
+      On TikTok and Instagram, the selfie is no longer only a personal image.
+      It is produced within a platform environment where faces are made visible,
+      evaluated and circulated through likes, comments and shares.
+    </p >
+
+    <p>
+      Beauty filters transform the photograph into a performance. The face is
+      adjusted not only to look attractive, but to become readable, clickable
+      and shareable within the logic of the platform.
+    </p >
+
+    <div class="theory-box page2-theory">
+      <p class="theory-title">THEORETICAL FRAME</p >
+      <p>
+        Guy Debord describes spectacle as a social relation mediated by images.
+        In this context, the filtered selfie is not just an image of the self,
+        but a performance shaped by visibility, attention and platform feedback.
+      </p >
+      <span>Debord, 1967</span>
+    </div>
+<div class="mini-theory-box page2-mini-theory">
+  <p class="mini-theory-title">REFERENCE NOTE</p >
+
+  <p>
+    Social media platforms shape how users present themselves through visibility and connectivity.
+  </p >
+
+  <span>van Dijck, 2013</span>
+</div>
+    <div class="flow">
+      <span>CAMERA</span>
+      <span>FILTER</span>
+      <span>UPLOAD</span>
+      <span>LIKES</span>
+      <span>SELF</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+
+let particles = [];
+const mouse = { x: null, y: null, radius: 180 }; // 鼠标排斥半径
+
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+function init() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    particles = [];
+    // 增加粒子密度：数值越小，粒子越多。9000是一个平衡点
+    const numberOfParticles = (canvas.width * canvas.height) / 9000; 
+    for (let i = 0; i < numberOfParticles; i++) {
+        particles.push(new Particle());
+    }
+}
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1; // 粒子大小
+        this.vx = (Math.random() - 0.5) * 1.2; // 漂移速度
+        this.vy = (Math.random() - 0.5) * 1.2;
+    }
+
+    draw() {
+        ctx.fillStyle = '#6f8faa'; 
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        // 鼠标排斥逻辑
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < mouse.radius) {
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = (mouse.radius - distance) / mouse.radius;
+            this.x -= forceDirectionX * force * 4;
+            this.y -= forceDirectionY * force * 4;
+        }
+    }
+}
+
+function connect() {
+    for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+            let dx = particles[a].x - particles[b].x;
+            let dy = particles[a].y - particles[b].y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 160) { // 连线距离上限
+                let opacity = 1 - (distance / 160);
+                ctx.strokeStyle = `rgba(111, 143, 170, ${opacity * 0.6})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(particles[a].x, particles[a].y);
+                ctx.lineTo(particles[b].x, particles[b].y);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+    }
+    connect();
+    requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => {
+    init();
+});
+
+init();
+animate();
+init();
+animate();
+
+const platformSoundButton = document.getElementById('platformSoundButton');
+const platformSound = document.getElementById('platformSound');
+
+platformSoundButton.addEventListener('click', () => {
+  platformSound.currentTime = 0;
+  platformSound.play();
+
+  platformSoundButton.textContent = 'LOADING SIMULATION...';
+  platformSoundButton.classList.add('playing');
+
+  setTimeout(() => {
+    window.location.href = 'page3.html';
+  }, 1200);
+});
+</script>
+
+</body>
+</html>
